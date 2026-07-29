@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PARENT
+  SITTER
+  ADMIN
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum BookingStatus {
+  NEW_LEAD
+  CONTACTED
+  PET_DETAILS_PENDING
+  SITTER_MATCHING
+  SITTER_ASSIGNED
+  PAYMENT_PENDING
+  CONFIRMED
+  SERVICE_STARTED
+  SERVICE_COMPLETED
+  REPORT_SENT
+  REVIEW_REQUESTED
+  CLOSED
+  CANCELLED
+  REFUNDED
+}
+
+enum ServiceType {
+  WALKING
+  SITTING
+  BOARDING
+}
+
+enum SitterLevel {
+  L1 // Basic Screened Applicant
+  L2 // Service-Approved Sitter
+  L3 // Proven or Trusted Sitter
+}
+
+enum PaymentStatus {
+  NOT_CREATED
+  LINK_CREATED
+  SENT
+  PENDING
+  PAID
+  FAILED
+  EXPIRED
+  CANCELLED
+  PARTIALLY_REFUNDED
+  REFUND_PENDING
+  FULLY_REFUNDED
+  DISPUTED
+}
+
+model User {
+  id            String        @id @default(uuid())
+  name          String
+  email         String        @unique
+  password      String?
+  phone         String?
+  whatsapp      String?
+  city          String?
+  area          String?
+  society       String?
+  role          Role          @default(PARENT)
+  status        AccountStatus @default(ACTIVE)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  sitterProfile    SitterProfile?
+  pets             Pet[]
+  bookingsAsParent Booking[]      @relation("ParentBookings")
+  bookingsAsSitter Booking[]      @relation("SitterBookings")
+  reviewsGiven     Review[]       @relation("CustomerReviews")
+  reviewsReceived  Review[]       @relation("SitterReviews")
+}
+
+model SitterProfile {
+  id               String        @id @default(uuid())
+  userId           String        @unique
+  user             User          @relation(fields: [userId], references: [id])
+  bio              String?
+  level            SitterLevel   @default(L1)
+  approvedServices ServiceType[]
+  baseRate         Float         @default(0)
+  travelRadius     Float?
+  isVerified       Boolean       @default(false)
+  rating           Float         @default(5.0)
+  cancellationRate Float         @default(0)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Pet {
+  id                  String   @id @default(uuid())
+  ownerId             String
+  owner               User     @relation(fields: [ownerId], references: [id])
+  name                String
+  species             String   @default("Dog")
+  breed               String?
+  age                 Int?
+  weight              Float?
+  vaccinationStatus   String?
+  medicalConditions   String?
+  behaviorNotes       String?
+  biteHistory         Boolean  @default(false)
+  escapeHistory       Boolean  @default(false)
+  feedingInstructions String?
+  walkingInstructions String?
+  vetContact          String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Booking {
+  id           String        @id @default(uuid())
+  referenceId  String?       @unique // e.g., BK-0012-WALK
+  parentId     String
+  parent       User          @relation("ParentBookings", fields: [parentId], references: [id])
+  sitterId     String?
+  sitter       User?         @relation("SitterBookings", fields: [sitterId], references: [id])
+  status       BookingStatus @default(NEW_LEAD)
+  serviceType  ServiceType
+  startDate    DateTime
+  endDate      DateTime
+  totalPrice   Float         @default(0)
+  sitterPayout Float         @default(0)
+  location     String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  payments     Payment[]
+  reports      Report[]
+  reviews      Review[]
+  incidents    Incident[]
+}
+
+model Payment {
+  id               String        @id @default(uuid())
+  bookingId        String
+  booking          Booking       @relation(fields: [bookingId], references: [id])
+  paymentLinkId    String?
+  paymentReference String?
+  amount           Float
+  status           PaymentStatus @default(NOT_CREATED)
+  paymentMethod    String?
+  paymentDate      DateTime?
+  refundAmount     Float?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Report {
+  id              String    @id @default(uuid())
+  bookingId       String
+  booking         Booking   @relation(fields: [bookingId], references: [id])
+  actualStartTime DateTime?
+  actualEndTime   DateTime?
+  distance        Float?
+  foodAndWater    String?
+  toiletInfo      String?
+  mood            String?
+  behavior        String?
+  healthConcern   String?
+  sitterNote      String?
+  createdAt       DateTime  @default(now())
+}
+
+model Review {
+  id                  String   @id @default(uuid())
+  bookingId           String
+  booking             Booking  @relation(fields: [bookingId], references: [id])
+  customerId          String
+  customer            User     @relation("CustomerReviews", fields: [customerId], references: [id])
+  sitterId            String
+  sitter              User     @relation("SitterReviews", fields: [sitterId], references: [id])
+  rating              Int
+  reviewText          String?
+  sameSitterRequest   Boolean  @default(false)
+  repeatBookingIntent Boolean  @default(false)
+  createdAt           DateTime @default(now())
+}
+
+model Incident {
+  id               String   @id @default(uuid())
+  bookingId        String
+  booking          Booking  @relation(fields: [bookingId], references: [id])
+  reportedBy       String
+  incidentCategory String
+  severity         String
+  description      String
+  immediateAction  String?
+  status           String   @default("OPEN")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
