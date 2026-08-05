@@ -30,15 +30,6 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user || !user.password) {
-          // If no user is found, but we want to allow a default admin login for the pilot
-          if (credentials.email === "admin@petsaathi.in" && credentials.password === "admin123") {
-            return {
-              id: "dummy-admin-id",
-              name: "PetSaathi Admin",
-              email: "admin@petsaathi.in",
-              role: "ADMIN",
-            };
-          }
           return null;
         }
 
@@ -61,14 +52,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = (user as unknown).role;
+        token.role = (user as { role?: string }).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as unknown).id = token.id as string;
-        (session.user as unknown).role = token.role as string;
+        const sessionUser = session.user as typeof session.user & {
+          id?: string;
+          role?: string;
+        };
+        sessionUser.id = token.id as string;
+        sessionUser.role = token.role as string;
       }
       return session;
     },

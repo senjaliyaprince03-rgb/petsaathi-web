@@ -4,12 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "prisma:validate": "prisma validate",
+    "prisma:push": "prisma db push && node scripts/apply-mongodb-indexes.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3",
+    "@prisma/client": "6.19.3",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@types/three": "^0.185.1",
@@ -18,11 +21,14 @@
     "framer-motion": "^12.42.2",
     "gsap": "^3.15.0",
     "lucide-react": "^1.25.0",
-    "next": "16.2.10",
+    "mongodb": "6.21.0",
+    "next": "16.2.12",
     "next-auth": "^4.24.14",
+    "petsaathi": "file:..",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.9.2",
+    "sharp": "0.35.3",
     "tailwind-merge": "^3.6.0",
     "three": "^0.185.1"
   },
@@ -33,9 +39,14 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
-    "prisma": "^6.19.3",
+    "eslint-config-next": "16.2.12",
+    "postcss": "8.5.19",
+    "prisma": "6.19.3",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "$postcss",
+    "sharp": "$sharp"
   }
 }

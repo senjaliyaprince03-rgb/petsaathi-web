@@ -1,6 +1,6 @@
 import type { NextRequest} from "next/server";
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, ServiceType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -19,8 +19,10 @@ export async function GET(req: NextRequest) {
     // Only return Sitters who are L2 or L3 (Verified), support the requested service,
     // and ideally are in the same area.
     
-    // Note: Enum casting for Prisma
-    const validServiceType = service as unknown;
+    if (!Object.values(ServiceType).includes(service as ServiceType)) {
+      return NextResponse.json({ error: "Invalid service parameter" }, { status: 400 });
+    }
+    const validServiceType = service as ServiceType;
 
     const matchedSitters = await prisma.sitterProfile.findMany({
       where: {

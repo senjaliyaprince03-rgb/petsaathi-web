@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
 }
 
 enum Role {
@@ -64,7 +64,7 @@ enum PaymentStatus {
 }
 
 model User {
-  id            String        @id @default(uuid())
+  id            String        @id @default(uuid()) @map("_id")
   name          String
   email         String        @unique
   password      String?
@@ -87,7 +87,7 @@ model User {
 }
 
 model SitterProfile {
-  id               String        @id @default(uuid())
+  id               String        @id @default(uuid()) @map("_id")
   userId           String        @unique
   user             User          @relation(fields: [userId], references: [id])
   bio              String?
@@ -103,7 +103,7 @@ model SitterProfile {
 }
 
 model Pet {
-  id                  String   @id @default(uuid())
+  id                  String   @id @default(uuid()) @map("_id")
   ownerId             String
   owner               User     @relation(fields: [ownerId], references: [id])
   name                String
@@ -124,7 +124,7 @@ model Pet {
 }
 
 model Booking {
-  id           String        @id @default(uuid())
+  id           String        @id @default(uuid()) @map("_id")
   referenceId  String?       @unique // e.g., BK-0012-WALK
   parentId     String
   parent       User          @relation("ParentBookings", fields: [parentId], references: [id])
@@ -147,7 +147,7 @@ model Booking {
 }
 
 model Payment {
-  id               String        @id @default(uuid())
+  id               String        @id @default(uuid()) @map("_id")
   bookingId        String
   booking          Booking       @relation(fields: [bookingId], references: [id])
   paymentLinkId    String?
@@ -162,7 +162,7 @@ model Payment {
 }
 
 model Report {
-  id              String    @id @default(uuid())
+  id              String    @id @default(uuid()) @map("_id")
   bookingId       String
   booking         Booking   @relation(fields: [bookingId], references: [id])
   actualStartTime DateTime?
@@ -178,7 +178,7 @@ model Report {
 }
 
 model Review {
-  id                  String   @id @default(uuid())
+  id                  String   @id @default(uuid()) @map("_id")
   bookingId           String
   booking             Booking  @relation(fields: [bookingId], references: [id])
   customerId          String
@@ -193,7 +193,7 @@ model Review {
 }
 
 model Incident {
-  id               String   @id @default(uuid())
+  id               String   @id @default(uuid()) @map("_id")
   bookingId        String
   booking          Booking  @relation(fields: [bookingId], references: [id])
   reportedBy       String
