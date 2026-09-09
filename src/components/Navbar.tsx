@@ -34,7 +34,7 @@ export default function Navbar() {
       }`}
     >
       <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" aria-label="PetSaathi Home" className="flex items-center gap-2 group">
           <motion.div
             whileHover={{ rotate: 20 }}
             transition={{ type: "spring", stiffness: 300 }}
@@ -62,7 +62,7 @@ export default function Navbar() {
           <Link href="/sitter" className="hidden lg:block text-sm font-medium text-foreground hover:text-primary-600 transition-colors">
             Become a Sitter
           </Link>
-          <MagneticButton className="px-6 py-2.5 bg-foreground text-background hover:bg-primary-900 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]">
+          <MagneticButton aria-label="Book a Sitter" className="px-6 py-2.5 bg-foreground text-background hover:bg-primary-900 shadow-[0_4px_14px_0_rgba(0,0,0,0.1)]">
             Book a Sitter
           </MagneticButton>
         </div>

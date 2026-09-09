@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, MapPin, Clock, ShieldAlert, Plus, Phone, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
@@ -45,7 +45,14 @@ export default function LostAndFound() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/20 blur-[50px] rounded-full pointer-events-none" />
           
           <div className="w-full md:w-48 h-48 bg-slate-800 rounded-2xl overflow-hidden flex-shrink-0 relative border border-white/10">
-            <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=400&h=400" alt="Lost Beagle" className="w-full h-full object-cover" />
+            <Image
+              src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=400&h=400"
+              alt="Lost Beagle"
+              width={400}
+              height={400}
+              className="w-full h-full object-cover"
+              priority={false}
+            />
             <div className="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md shadow-lg animate-pulse">
               Missing
             </div>

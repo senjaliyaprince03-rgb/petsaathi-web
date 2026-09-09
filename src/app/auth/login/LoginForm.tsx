@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
@@ -61,7 +62,9 @@ export default function LoginForm() {
           </label>
           <input
             id="email"
+            name="email"
             type="email"
+            aria-required="true"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
@@ -76,7 +79,9 @@ export default function LoginForm() {
           </label>
           <input
             id="password"
+            name="password"
             type="password"
+            aria-required="true"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
@@ -96,6 +101,18 @@ export default function LoginForm() {
             "Sign In to Dashboard"
           )}
         </button>
+
+        <div className="text-center pt-2">
+          <p className="text-sm text-slate-400">
+            Don&apos;t have an account?{" "}
+            <Link
+              href="/auth/register"
+              className="text-primary-400 hover:text-primary-300 font-medium transition-colors underline-offset-4 hover:underline"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
       </form>
     </motion.div>
   );

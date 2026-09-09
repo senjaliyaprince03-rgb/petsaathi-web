@@ -1,8 +1,11 @@
-import type { NextRequest} from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { PrismaClient, ServiceType } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+
+const VALID_SERVICE_TYPES = ["WALKING", "SITTING", "BOARDING"] as const;
+type ValidServiceType = (typeof VALID_SERVICE_TYPES)[number];
 
 // GET /api/match?service=WALKING&area=Bandra
 export async function GET(req: NextRequest) {
@@ -15,14 +18,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Service parameter is required" }, { status: 400 });
     }
 
-    // Phase 3 Automated Matching Logic:
-    // Only return Sitters who are L2 or L3 (Verified), support the requested service,
-    // and ideally are in the same area.
-    
-    if (!Object.values(ServiceType).includes(service as ServiceType)) {
+    if (!(VALID_SERVICE_TYPES as readonly string[]).includes(service)) {
       return NextResponse.json({ error: "Invalid service parameter" }, { status: 400 });
     }
-    const validServiceType = service as ServiceType;
+    const validServiceType = service as ValidServiceType;
 
     const matchedSitters = await prisma.sitterProfile.findMany({
       where: {
@@ -35,9 +34,8 @@ export async function GET(req: NextRequest) {
         },
         user: {
           status: "ACTIVE",
-          // If area is provided, prioritize it
-          ...(area ? { area: { contains: area, mode: "insensitive" } } : {}),
-        }
+          ...(area ? { area: { contains: area, mode: "insensitive" as const } } : {}),
+        },
       },
       include: {
         user: {
@@ -45,14 +43,11 @@ export async function GET(req: NextRequest) {
             name: true,
             area: true,
             city: true,
-          }
-        }
+          },
+        },
       },
-      orderBy: [
-        { rating: 'desc' },
-        { cancellationRate: 'asc' }
-      ],
-      take: 10 // Top 10 matches
+      orderBy: [{ rating: "desc" }, { cancellationRate: "asc" }],
+      take: 10,
     });
 
     return NextResponse.json({ matches: matchedSitters });

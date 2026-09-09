@@ -1,69 +1,39 @@
 "use client";
 
-import { useRef } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, MeshDistortMaterial, Sphere } from "@react-three/drei";
+import dynamic from "next/dynamic";
 import type { Variants } from "framer-motion";
 import { motion } from "framer-motion";
 import MagneticButton from "./MagneticButton";
-import type * as THREE from "three";
 
-// Abstract 3D shape representing energy/playfulness (a morphing sphere)
-function AnimatedShape() {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.2;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.3;
-    }
-  });
-
-  return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-      <Sphere ref={meshRef} args={[1, 64, 64]} scale={1.5}>
-        <MeshDistortMaterial
-          color="#3b82f6" // Primary-500
-          attach="material"
-          distort={0.4}
-          speed={2}
-          roughness={0.2}
-          metalness={0.8}
-        />
-      </Sphere>
-    </Float>
-  );
-}
+const Hero3DScene = dynamic(() => import("./Hero3DScene"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-gradient-to-tr from-primary-500/10 to-transparent blur-3xl" />
+  ),
+});
 
 export default function Hero() {
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
+      transition: { staggerChildren: 0.05, delayChildren: 0 },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 15, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 100, damping: 10 },
+      transition: { duration: 0.4, ease: "easeOut" },
     },
   };
 
   return (
     <section className="relative w-full min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* 3D Background */}
-      <div className="absolute inset-0 w-full h-full z-0 opacity-40">
-        <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
-          <pointLight position={[-10, -10, -5]} intensity={0.5} color="#60a5fa" />
-          <AnimatedShape />
-        </Canvas>
-      </div>
+      <Hero3DScene />
 
       {/* Content */}
       <div className="container relative z-10 mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center">
@@ -116,7 +86,7 @@ export default function Hero() {
         <motion.div 
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
           className="w-full lg:w-2/5 hidden lg:block"
         >
           {/* A glowing orb or high-quality image placeholder */}

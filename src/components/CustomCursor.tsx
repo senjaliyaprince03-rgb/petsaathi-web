@@ -7,20 +7,27 @@ import { motion } from "framer-motion";
 export default function CustomCursor() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const media = window.matchMedia("(pointer: fine)");
+    if (!media.matches) return;
+    setIsEnabled(true);
+
     const updateMousePosition = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
     };
 
     const handleMouseOver = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
+      const target = e.target as HTMLElement | null;
       // Expand cursor on clickable elements
       if (
-        target.tagName.toLowerCase() === "button" ||
-        target.tagName.toLowerCase() === "a" ||
-        target.closest("button") ||
-        target.closest("a")
+        target?.tagName?.toLowerCase() === "button" ||
+        target?.tagName?.toLowerCase() === "a" ||
+        target?.closest("button") ||
+        target?.closest("a")
       ) {
         setIsHovered(true);
       } else {
@@ -28,12 +35,18 @@ export default function CustomCursor() {
       }
     };
 
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      setIsEnabled(e.matches);
+    };
+
     window.addEventListener("mousemove", updateMousePosition);
     window.addEventListener("mouseover", handleMouseOver);
+    media.addEventListener("change", handleMediaChange);
 
     return () => {
       window.removeEventListener("mousemove", updateMousePosition);
       window.removeEventListener("mouseover", handleMouseOver);
+      media.removeEventListener("change", handleMediaChange);
     };
   }, []);
 
@@ -70,8 +83,8 @@ export default function CustomCursor() {
     },
   };
 
-  // Hide the custom cursor on touch devices to avoid ghost cursors
-  if (typeof window !== "undefined" && window.matchMedia("(hover: none) and (pointer: coarse)").matches) {
+  // Avoid rendering on touch devices or during SSR
+  if (!isEnabled) {
     return null;
   }
 
