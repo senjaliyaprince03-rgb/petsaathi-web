@@ -53,6 +53,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable} h-full antialiased`}>
+      <head>
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-JTY8FBB3VB" />
+        <script
+          id="google-tag-gtag"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+
+              gtag('config', 'G-JTY8FBB3VB');
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans selection:bg-primary-500 selection:text-white">
         <script
           type="application/ld+json"
